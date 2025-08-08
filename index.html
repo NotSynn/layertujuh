@@ -1,24 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Traffic Monitor</title>
-    <link rel="stylesheet" href="style.css">
+    <title>🌐 Live Traffic Monitor</title>
+    <style>
+        body {
+            background: #181818;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+        #rps {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌐 Live Traffic Monitor</h1>
-        <p class="description">Menampilkan Request Per Second (RPS) secara real-time</p>
+    <h1>🌐 Live Traffic Monitor</h1>
+    <p>Menampilkan Request Per Second (RPS) secara real-time</p>
+    <div id="rps">0</div>
 
-        <div class="rps-display">
-            <span id="rps-value">0</span> RPS
-        </div>
+    <script>
+        async function updateRPS() {
+            try {
+                const res = await fetch("https://worker.hcydgt.workers.dev");
+                const data = await res.json();
+                document.getElementById("rps").textContent = data.rps;
+            } catch (err) {
+                console.error("Gagal mengambil data RPS", err);
+            }
+        }
 
-        <canvas id="trafficChart"></canvas>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
+        // ambil setiap 1 detik
+        setInterval(updateRPS, 1000);
+        updateRPS();
+    </script>
 </body>
 </html>
