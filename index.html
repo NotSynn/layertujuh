@@ -2,19 +2,23 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌐 Live Traffic Monitor</title>
     <style>
         body {
-            background: #181818;
-            color: white;
             font-family: Arial, sans-serif;
+            background-color: #181818;
+            color: white;
             text-align: center;
             padding-top: 50px;
         }
+        h1 {
+            font-size: 2em;
+        }
         #rps {
-            font-size: 48px;
-            font-weight: bold;
-            color: #00ff88;
+            font-size: 3em;
+            margin-top: 20px;
+            color: #00ff9d;
         }
     </style>
 </head>
@@ -24,17 +28,19 @@
     <div id="rps">0</div>
 
     <script>
+        const workerURL = "https://worker.hcydgt.workers.dev"; // Ganti kalau URL worker beda
+
         async function updateRPS() {
             try {
-                const res = await fetch("https://worker.hcydgt.workers.dev");
+                const res = await fetch(workerURL);
                 const data = await res.json();
-                document.getElementById("rps").textContent = data.rps;
+                document.getElementById("rps").textContent = data.rps || 0;
             } catch (err) {
-                console.error("Gagal mengambil data RPS", err);
+                console.error("Gagal ambil data RPS:", err);
             }
         }
 
-        // ambil setiap 1 detik
+        // Ambil setiap 1 detik
         setInterval(updateRPS, 1000);
         updateRPS();
     </script>
