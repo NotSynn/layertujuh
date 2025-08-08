@@ -1,4 +1,4 @@
-const API_URL = "https://YOUR-WORKER-NAME.YOUR-USERNAME.workers.dev";
+const API_URL = "https://worker.hcydgt.workers.dev";
 
 const ctx = document.getElementById('trafficChart').getContext('2d');
 let trafficData = {
@@ -58,3 +58,4 @@ async function fetchRPS() {
 }
 
 setInterval(fetchRPS, 1000);
+
