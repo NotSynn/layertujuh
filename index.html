@@ -1,48 +1,37 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌐 Live Traffic Monitor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #181818;
-            color: white;
-            text-align: center;
-            padding-top: 50px;
-        }
-        h1 {
-            font-size: 2em;
-        }
-        #rps {
-            font-size: 3em;
-            margin-top: 20px;
-            color: #00ff9d;
-        }
-    </style>
+  <title>🌐 Live Traffic Monitor</title>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial; text-align: center; background: #181818; color: white; }
+    h1 { margin-top: 50px; }
+    #rps { font-size: 48px; color: lime; }
+  </style>
 </head>
 <body>
-    <h1>🌐 Live Traffic Monitor</h1>
-    <p>Menampilkan Request Per Second (RPS) secara real-time</p>
-    <div id="rps">0</div>
+  <h1>🌐 Live Traffic Monitor</h1>
+  <p>Menampilkan Request Per Second (RPS) secara real-time</p>
+  <div id="rps">0 RPS</div>
 
-    <script>
-        const workerURL = "https://worker.hcydgt.workers.dev"; // Ganti kalau URL worker beda
+  <script>
+    const workerHit = "https://worker.hcydgt.workers.dev/hit";
+    const workerStats = "https://worker.hcydgt.workers.dev/stats";
 
-        async function updateRPS() {
-            try {
-                const res = await fetch(workerURL);
-                const data = await res.json();
-                document.getElementById("rps").textContent = data.rps || 0;
-            } catch (err) {
-                console.error("Gagal ambil data RPS:", err);
-            }
-        }
+    // Tiap ada request ke Pages, hitung ke Worker
+    fetch(workerHit).catch(() => {});
 
-        // Ambil setiap 1 detik
-        setInterval(updateRPS, 1000);
-        updateRPS();
-    </script>
+    // Update angka RPS tiap detik
+    setInterval(() => {
+      fetch(workerStats)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("rps").innerText = data.rps + " RPS";
+        })
+        .catch(() => {
+          document.getElementById("rps").innerText = "Error";
+        });
+    }, 1000);
+  </script>
 </body>
 </html>
