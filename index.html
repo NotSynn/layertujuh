@@ -16,7 +16,9 @@
   <canvas id="rpsChart" width="600" height="300"></canvas>
 
   <script>
+    // URL Worker Anda adalah tempat semua traffic akan masuk
     const workerBaseUrl = "https://worker.hcydgt.workers.dev"; // URL Worker Anda
+
     const ctx = document.getElementById('rpsChart').getContext('2d');
 
     let chart = new Chart(ctx, {
@@ -37,8 +39,8 @@
         scales: {
           x: { ticks: { color: 'white' } },
           y: { 
-            ticks: { color: 'white', beginAtZero: true }, // Pastikan mulai dari nol
-            min: 0 // Pastikan min y-axis adalah 0
+            ticks: { color: 'white', beginAtZero: true },
+            min: 0
           } 
         },
         plugins: { legend: { labels: { color: 'white' } } }
@@ -47,20 +49,14 @@
 
     // Fungsi untuk mengambil data dan memperbarui chart
     function updateChart() {
-      // Kirim hit ke Worker setiap kali fungsi ini dipanggil
-      // Ini memastikan Pages.dev "memberitahu" Worker tentang adanya traffic
-      fetch(workerBaseUrl) // Default endpoint Worker untuk mencatat hit
-        .then(hitResponse => {
-            // Setelah mencatat hit, ambil data stats
-            return fetch(workerBaseUrl + "/stats");
-        })
+      // Pages.dev hanya perlu mengambil data statistik dari Worker
+      fetch(workerBaseUrl + "/stats")
         .then(res => res.json())
         .then(data => {
           let time = new Date().toLocaleTimeString();
           chart.data.labels.push(time);
           chart.data.datasets[0].data.push(data.rps);
 
-          // Batasi jumlah data pada chart
           if (chart.data.labels.length > 20) {
             chart.data.labels.shift();
             chart.data.datasets[0].data.shift();
@@ -68,7 +64,7 @@
           chart.update();
         })
         .catch(error => {
-            console.error("Error fetching data:", error);
+            console.error("Error fetching stats data:", error);
         });
     }
 
