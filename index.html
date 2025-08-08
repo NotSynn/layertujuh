@@ -1,38 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🌐 Live Traffic Monitor</title>
   <meta charset="UTF-8">
+  <title>🌐 Live Traffic Monitor - DDoS Mitigation</title>
   <style>
-    body { font-family: Arial; text-align: center; background: #181818; color: white; }
-    h1 { margin-top: 50px; }
-    #rps { font-size: 48px; color: lime; }
+    body { font-family: Arial; background: #181818; color: white; text-align: center; }
+    h1 { margin-top: 20px; }
+    canvas { background: #222; border-radius: 10px; padding: 10px; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>🌐 Live Traffic Monitor</h1>
   <p>DDoS Mitigation</p>
-  <div id="rps">0 RPS</div>
+  <canvas id="rpsChart" width="600" height="300"></canvas>
 
   <script>
-    const workerHit = "https://worker.hcydgt.workers.dev/hit";
-    const workerStats = "https://worker.hcydgt.workers.dev/stats";
+    const workerUrl = "https://worker.hcydgt.workers.dev";
+    const ctx = document.getElementById('rpsChart').getContext('2d');
 
-    // Tiap ada request ke Pages, hitung ke Worker
-    fetch(workerHit).catch(() => {});
+    let chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Requests Per Second (RPS)',
+          data: [],
+          borderColor: 'lime',
+          backgroundColor: 'rgba(0,255,0,0.1)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { ticks: { color: 'white' } },
+          y: { ticks: { color: 'white' } }
+        },
+        plugins: { legend: { labels: { color: 'white' } } }
+      }
+    });
 
-    // Update angka RPS tiap detik
+    // Kirim hit ke Worker setiap halaman di-load
+    fetch(workerUrl).catch(() => {});
+
+    // Update data setiap detik
     setInterval(() => {
-      fetch(workerStats)
+      fetch(workerUrl + "/stats")
         .then(res => res.json())
         .then(data => {
-          document.getElementById("rps").innerText = data.rps + " RPS";
+          let time = new Date().toLocaleTimeString();
+          chart.data.labels.push(time);
+          chart.data.datasets[0].data.push(data.rps);
+          if (chart.data.labels.length > 20) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+          }
+          chart.update();
         })
-        .catch(() => {
-          document.getElementById("rps").innerText = "Error";
-        });
+        .catch(() => {});
     }, 1000);
   </script>
 </body>
 </html>
-
